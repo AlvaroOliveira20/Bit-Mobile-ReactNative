@@ -24,31 +24,19 @@ import CpfInput from "./../../components/input";
 
 export interface HomeProps {}
 
-export default function LoginScreen(props: HomeProps) {
+export default function CadastroScreen(props: HomeProps) {
   const nav = useNavigation();
 
-  const logar = async (dados: any) => {
+  const cadastrar = async (dados: any) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (dados.cpf == "123.456.789-10" && dados.senha == "123456") {
-      if (Platform.OS == "android") {
-        ToastAndroid.showWithGravity(
-          "Logado com sucesso!",
-          2000,
-          ToastAndroid.CENTER
-        );
-      } else {
-        alert("Logado com sucesso!");
-      }
+    if (Platform.OS == "android") {
+      ToastAndroid.showWithGravity(
+        "Cadastrado com sucesso!",
+        2000,
+        ToastAndroid.CENTER
+      );
     } else {
-      if (Platform.OS == "android") {
-        ToastAndroid.showWithGravity(
-          "Cpf ou senha incorretos!",
-          2000,
-          ToastAndroid.CENTER
-        );
-      } else {
-        alert("Logado com sucesso!");
-      }
+      alert("Cadastrado com sucesso!");
     }
   };
   const [cpf, setCpf] = React.useState("");
@@ -83,18 +71,21 @@ export default function LoginScreen(props: HomeProps) {
               name={"arrow-back"}
             />
           </TouchableOpacity>
-          <Text style={styles.text3}>Login</Text>
+          <Text style={styles.text3}>Cadastro</Text>
         </View>
       </HideWithKeyboard>
 
       <View style={styles.container}>
         <Formik
-          initialValues={{ cpf: "", senha: "" }}
+          initialValues={{ cpf: "", senha: "", email: "" }}
           validationSchema={Yup.object().shape({
             cpf: Yup.string().required("O campo 'CPF' é obrigatório!"),
+            email: Yup.string()
+              .required("O campo 'E-mail' é obrigatório!")
+              .email("O e-mail não é válido!"),
             senha: Yup.string().required("O campo 'Senha' é obrigatório!"),
           })}
-          onSubmit={logar}
+          onSubmit={cadastrar}
         >
           {({
             errors,
@@ -116,23 +107,43 @@ export default function LoginScreen(props: HomeProps) {
               </View>
 
               <CpfInput
-                onBlur={handleBlur("cpf")} 
+                onBlur={handleBlur("cpf")}
                 value={cpf}
                 mask="cpf"
                 maxLength={14}
                 inputMaskChange={(text: string) => {
-                  setFieldValue('cpf', text)
+                  setFieldValue("cpf", text);
                   handleCustom(text);
                 }}
                 keyboardType="number-pad"
                 placeholder="000.000.000-00"
                 style={styles.input}
               />
-              {touched.cpf &&  (
+              {touched.cpf && (
                 <Text
                   style={{ color: "#f00", fontSize: 13, textAlign: "right" }}
                 >
                   {errors.cpf}
+                </Text>
+              )}
+              <View style={{ flexDirection: "row", paddingLeft: 10 }}>
+                <Text style={styles.text}>E-mail</Text>
+                <View style={{ flex: 1 }} />
+              </View>
+
+              <Input
+                leftIcon={{ type: "font-awesome", name: "envelope" }}
+                onBlur={handleBlur("email")}
+                onChangeText={handleChange("email")}
+                keyboardType="email-address"
+                placeholder="exemplo@email.com"
+                style={styles.input}
+              />
+              {touched.email && (
+                <Text
+                  style={{ color: "#f00", fontSize: 13, textAlign: "right" }}
+                >
+                  {errors.email}
                 </Text>
               )}
 
@@ -142,7 +153,7 @@ export default function LoginScreen(props: HomeProps) {
               </View>
 
               <Input
-                onBlur={handleBlur("senha")} 
+                onBlur={handleBlur("senha")}
                 keyboardType="number-pad"
                 onChangeText={handleChange("senha")}
                 secureTextEntry
@@ -160,7 +171,11 @@ export default function LoginScreen(props: HomeProps) {
               )}
               <View style={styles.checkboxContainer}>
                 <CheckBox style={styles.checkbox} />
-                <Text style={styles.label}> Lembrar CPF</Text>
+                <Text style={styles.label}>
+                  {" "}
+                  Concordo com os{" "}
+                  <Text style={styles.label2}>termos de uso.</Text>
+                </Text>
               </View>
               {isSubmitting && (
                 <View style={styles.button}>
@@ -184,7 +199,7 @@ export default function LoginScreen(props: HomeProps) {
                     source={require("../../../assets/img/button.png")}
                     style={styles.backgroundButton}
                   >
-                    <Text style={styles.text2}>Entrar</Text>
+                    <Text style={styles.text2}>Cadastre-se</Text>
                   </ImageBackground>
                 </TouchableOpacity>
               )}
@@ -206,6 +221,10 @@ const styles = StyleSheet.create({
   },
   label: {
     margin: 8,
+  },
+  label2: {
+    margin: 8,
+    color: "#00f",
   },
   background: { width: "100%", height: "100%" },
   backgroundButton: {
@@ -291,7 +310,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: 350,
-    height: 500,
+    height: 600,
     backgroundColor: "rgba(255,255,255,0.8)",
     borderTopLeftRadius: 60,
     borderBottomRightRadius: 60,

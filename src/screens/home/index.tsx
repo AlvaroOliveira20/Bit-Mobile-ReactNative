@@ -11,11 +11,15 @@ export default function HomeFuncaoScreen(props: HomeProps) {
   function navToLogin() {
     nav.navigate("login");
   }
+  function navToCadastro() {
+    nav.navigate("cadastro");
+  }
   return (
     <ImageBackground
       source={require("../../../assets/img/Background.png")}
       style={styles.background}
     >
+      <StatusBar style="light" backgroundColor="#000" />
       <View style={styles.container2}>
         <View style={styles.div}>
           <Image
@@ -27,6 +31,7 @@ export default function HomeFuncaoScreen(props: HomeProps) {
       <View style={styles.container}>
         <TouchableOpacity onPress={() => navToLogin()} style={styles.button}>
           <ImageBackground
+            imageStyle={{ borderRadius: 8 }}
             source={require("../../../assets/img/button.png")}
             style={styles.backgroundButton}
           >
@@ -34,9 +39,9 @@ export default function HomeFuncaoScreen(props: HomeProps) {
           </ImageBackground>
         </TouchableOpacity>
 
-
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity onPress={() => navToCadastro()} style={styles.button}>
           <ImageBackground
+            imageStyle={{ borderRadius: 8 }}
             source={require("../../../assets/img/button.png")}
             style={styles.backgroundButton}
           >
@@ -90,7 +95,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 1,
     shadowRadius: 10.0,
-    elevation: 24,
+    elevation: 10,
     borderColor: "#156e65",
     borderWidth: 2,
   },
