@@ -30,6 +30,7 @@ export default function LoginScreen(props: HomeProps) {
   const logar = async (dados: any) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (dados.cpf == "123.456.789-10" && dados.senha == "123456") {
+      nav.navigate("principal");
       if (Platform.OS == "android") {
         ToastAndroid.showWithGravity(
           "Logado com sucesso!",
@@ -116,19 +117,19 @@ export default function LoginScreen(props: HomeProps) {
               </View>
 
               <CpfInput
-                onBlur={handleBlur("cpf")} 
+                onBlur={handleBlur("cpf")}
                 value={cpf}
                 mask="cpf"
                 maxLength={14}
                 inputMaskChange={(text: string) => {
-                  setFieldValue('cpf', text)
+                  setFieldValue("cpf", text);
                   handleCustom(text);
                 }}
                 keyboardType="number-pad"
                 placeholder="000.000.000-00"
                 style={styles.input}
               />
-              {touched.cpf &&  (
+              {touched.cpf && (
                 <Text
                   style={{ color: "#f00", fontSize: 13, textAlign: "right" }}
                 >
@@ -142,7 +143,7 @@ export default function LoginScreen(props: HomeProps) {
               </View>
 
               <Input
-                onBlur={handleBlur("senha")} 
+                onBlur={handleBlur("senha")}
                 keyboardType="number-pad"
                 onChangeText={handleChange("senha")}
                 secureTextEntry

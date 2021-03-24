@@ -22,9 +22,9 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import CpfInput from "./../../components/input";
 
-export interface HomeProps {}
+export interface CadastroProps {}
 
-export default function CadastroScreen(props: HomeProps) {
+export default function CadastroScreen(props: CadastroProps) {
   const nav = useNavigation();
 
   const cadastrar = async (dados: any) => {
