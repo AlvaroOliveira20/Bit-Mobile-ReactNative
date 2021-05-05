@@ -3,12 +3,15 @@ import { StatusBar } from "expo-status-bar";
 import * as React from "react";
 import {
   ActivityIndicator,
+  Animated,
   Image,
   ImageBackground,
   Platform,
   StyleSheet,
   Text,
   ToastAndroid,
+  TouchableHighlight,
+  TouchableNativeFeedback,
   View,
 } from "react-native";
 import {
@@ -24,12 +27,28 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import HideWithKeyboard from "react-native-hide-with-keyboard";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import CpfInput from "./../../components/input";
+import { CpfInput } from "./../../components/input";
+import { AlertCustom } from "./../../components/alert-custom";
+import { Dimensions } from "react-native";
+import { ExpandingDot } from "react-native-animated-pagination-dots";
 
 export interface PrincipalProps {}
 
 export default function PrincipalScreen(props: PrincipalProps) {
+  const SLIDER_DATA = [
+    {
+      key: null,
+    },
+    {
+      key: null,
+    },
+   
+  ];
   const nav = useNavigation();
+  const windowWidth = Dimensions.get("window").width;
+  const width90 = windowWidth * 0.9;
+  const [visibilidade, setVisibilidade] = React.useState(false);
+  const scrollX = React.useRef(new Animated.Value(0)).current;
 
   const cadastrar = async (dados: any) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -44,6 +63,7 @@ export default function PrincipalScreen(props: PrincipalProps) {
     }
   };
   const [cpf, setCpf] = React.useState("");
+
   function handleCustom(value: string) {
     setCpf(value);
   }
@@ -52,47 +72,160 @@ export default function PrincipalScreen(props: PrincipalProps) {
       source={require("../../../assets/img/Background.png")}
       style={styles.background}
     >
+      <AlertCustom
+        titulo="Teste"
+        visivel={visibilidade}
+        onCancelar={() => {
+          setVisibilidade(false);
+        }}
+        onBarcode={() => {
+          nav.navigate("barcode");
+          setVisibilidade(false);
+        }}
+      ></AlertCustom>
       <StatusBar style="light" backgroundColor="#000" />
 
-      <View style={styles.container2}>
+      <View style={[styles.container2, {}]}>
         <Image
           source={require("../../../assets/img/img_avatar.png")}
           style={{ borderRadius: 100, width: 100, height: 100 }}
         />
         <Text style={styles.text3}>Olá, Nome!</Text>
-        <View style={styles.card}>
+
+        <View
+          style={{
+            flex: 1,
+            width: "100%",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <View
-            style={{
-              marginTop: 10,
-              alignItems: "center",
-            }}
+            style={[
+              styles.card,
+              {
+                maxWidth: "90%",
+                flex: 1,
+                padding: 0,
+                alignItems: "center",
+              },
+            ]}
           >
-            <Icon size={50} type="font-awesome" name="credit-card" />
-            <Text style={styles.text}>CARTÃO DE CRÉDITO</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+
+              onScroll={Animated.event( // Animated.event returns a function that takes an array where the first element...
+                [{ nativeEvent: { contentOffset: { x: scrollX } } }] // ... is an object that maps any nativeEvent prop to a variable
+              )} // in this case we are mapping the value of nativeEvent.contentOffset.x to this.scrollX
+              scrollEventThrottle={16} // this will ensure that this ScrollView's onScroll prop is called no faster than 16ms between each function call
+              
+
+              scrollEnabled
+              pagingEnabled
+              contentContainerStyle={{ flexGrow: 1 }}
+              style={{ minWidth: "100%" }}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  nav.navigate("cartao");
+                }}
+                style={{ flex: 1, width: width90, padding: 30 }}
+              >
+                <View
+                  style={{
+                    marginTop: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <Icon size={50} type="font-awesome" name="credit-card" />
+                  <Text style={styles.text}>CARTÃO DE CRÉDITO</Text>
+                </View>
+                <View
+                  style={{
+                    marginTop: 25,
+                    flex: 3,
+                    alignItems: "flex-start",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <Text style={[styles.text, { fontSize: 15 }]}>
+                    FATURA ATUAL:
+                  </Text>
+                  <Text
+                    style={{ color: "#000", fontSize: 45, fontWeight: "bold" }}
+                  >
+                    R$ 300,00
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    marginTop: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.text}>Limite disponível: R$300,00</Text>
+                </View>
+              </TouchableOpacity>
+
+              <View style={{ flex: 1, width: width90, padding: 30 }}>
+                <View
+                  style={{
+                    marginTop: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <Icon size={50} name="point-of-sale" />
+                  <Text style={styles.text}>CONTA</Text>
+                </View>
+                <View
+                  style={{
+                    marginTop: 25,
+                    flex: 3,
+                    alignItems: "flex-start",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <Text style={[styles.text, { fontSize: 15 }]}>Saldo:</Text>
+                  <Text
+                    style={{ color: "#000", fontSize: 45, fontWeight: "bold" }}
+                  >
+                    R$ 0,00
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    marginTop: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.text}>Saques gratuitos: 0</Text>
+                </View>
+              </View>
+              
+            </ScrollView>
+            <ExpandingDot
+                data={SLIDER_DATA}
+                expandingDotWidth={30}
+                scrollX={scrollX}
+                inActiveDotOpacity={0.6}
+                dotStyle={{
+                  width: 10,
+                  height: 10,
+                  backgroundColor: "#18a383",
+                  borderRadius: 5,
+                  marginHorizontal: 5,
+                }}
+                containerStyle={{
+                  top: '95%',
+                }}
+              />
           </View>
-          <View
-            style={{
-              marginTop: 25,
-              flex: 3,
-              alignItems: "flex-start",
-              justifyContent: "flex-start",
-            }}
-          >
-            <Text style={styles.text}>FATURA ATUAL:</Text>
-            <Text style={{ color: "#000", fontSize: 45, fontWeight: "bold" }}>
-              R$0,00
-            </Text>
-          </View>
-          <View
-            style={{
-              flex: 1,
-              marginTop: 10,
-              alignItems: "center",
-            }}
-          >
-            <Text style={styles.text}>Limite disponível: R$600,00</Text>
-          </View>
+          
         </View>
+
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
@@ -118,9 +251,13 @@ export default function PrincipalScreen(props: PrincipalProps) {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.container}>
+      <View style={[styles.container, {}]}>
         <ScrollView style={{}} horizontal>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setVisibilidade(true);
+            }}
+          >
             <View style={{ marginLeft: 15 }}>
               <View style={styles.card2}>
                 <View style={{ flex: 9 }}>
@@ -128,7 +265,7 @@ export default function PrincipalScreen(props: PrincipalProps) {
                     style={{ marginTop: 10 }}
                     size={60}
                     type="font-awesome"
-                    name="money"
+                    name="barcode"
                     color="white"
                   />
                 </View>
@@ -142,7 +279,11 @@ export default function PrincipalScreen(props: PrincipalProps) {
               </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              nav.navigate("pix");
+            }}
+          >
             <View style={styles.card2}>
               <View style={{ flex: 9, alignItems: "center" }}>
                 <Image
@@ -159,7 +300,11 @@ export default function PrincipalScreen(props: PrincipalProps) {
               </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              nav.navigate("transferencia");
+            }}
+          >
             <View style={styles.card2}>
               <View style={{ flex: 9, alignItems: "center" }}>
                 <Icon
@@ -179,7 +324,11 @@ export default function PrincipalScreen(props: PrincipalProps) {
               </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+          onPress={() => {
+            nav.navigate("ajuste-limite");
+          }}
+        >
             <View style={styles.card2}>
               <View style={{ flex: 9, alignItems: "center" }}>
                 <Icon
@@ -205,7 +354,11 @@ export default function PrincipalScreen(props: PrincipalProps) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity
+          onPress={() => {
+            nav.navigate("bloqueio");
+          }}
+        >
             <View style={styles.card2}>
               <View style={{ flex: 9, alignItems: "center" }}>
                 <Icon
@@ -231,7 +384,11 @@ export default function PrincipalScreen(props: PrincipalProps) {
               </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+          onPress={() => {
+            nav.navigate("cartao-virtual");
+          }}
+          >
             <View style={styles.card2}>
               <View style={{ flex: 9, alignItems: "center" }}>
                 <Icon
@@ -309,32 +466,7 @@ export default function PrincipalScreen(props: PrincipalProps) {
               </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <View style={styles.card2}>
-              <View style={{ flex: 9, alignItems: "center" }}>
-                <Icon
-                  style={{ marginTop: 10 }}
-                  size={60}
-                  type="font-awesome"
-                  name="barcode"
-                  color="white"
-                />
-              </View>
-              <View style={{ flex: 1, alignItems: "center" }}>
-                <Text
-                  style={{
-                    color: "#fff",
-                    fontSize: 15,
-                    width: 130,
-                    textAlign: "center",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Pagar
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
+
           <TouchableOpacity>
             <View style={{ marginRight: 15 }}>
               <View style={styles.card2}>
@@ -440,8 +572,6 @@ const styles = StyleSheet.create({
   },
   container2: {
     flex: 3,
-    paddingLeft: 10,
-    paddingRight: 10,
     flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "center",
@@ -468,8 +598,6 @@ const styles = StyleSheet.create({
   },
   card: {
     marginTop: 15,
-    width: "95%",
-    height: "60%",
     backgroundColor: "rgba(255,255,255,1)",
     borderRadius: 15,
     marginBottom: 15,

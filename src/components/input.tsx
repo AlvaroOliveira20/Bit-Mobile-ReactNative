@@ -1,8 +1,9 @@
 import { maskCpf } from './../utils/mask'
+import { maskValor } from './../utils/mask'
 import * as React from 'react';
 import { View, Button, TouchableOpacity,Image, StyleSheet, ImageBackground, Text, Alert, TextInputProps} from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import { Input} from "react-native-elements";
+import { Icon, Input} from "react-native-elements";
 
 
 
@@ -24,4 +25,29 @@ const CpfInput: React.FC<InputProps> = ({ mask, inputMaskChange, ... rest}) =>{
     )
 
 }
-export default CpfInput
+
+
+
+interface InputValorProps extends TextInputProps{
+    mask: "valor",
+    inputMaskChange: any
+}
+const ValorInput: React.FC<InputValorProps> = ({ mask, inputMaskChange, ... rest}) =>{
+
+    function handleChange(text: string){
+        const value = maskValor(text)
+        inputMaskChange(value)
+    }
+
+    return(
+        <Input {... rest}
+            onChangeText={text => handleChange(text)}
+            keyboardType="number-pad"
+            placeholder={"0,00"}
+            maxLength={15}
+            
+          ></Input>
+    )
+
+}
+export {ValorInput, CpfInput} 

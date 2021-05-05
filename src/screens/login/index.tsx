@@ -20,7 +20,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import HideWithKeyboard from "react-native-hide-with-keyboard";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import CpfInput from "./../../components/input";
+import { CpfInput } from "./../../components/input";
 
 export interface HomeProps {}
 

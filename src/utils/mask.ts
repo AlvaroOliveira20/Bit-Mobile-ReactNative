@@ -6,5 +6,14 @@ function maskCpf (value: string){
 
     return value
 }
+function maskValor (value: string){
+    value = value.replace(/\D/g, "");
+    if ( value.length > 2 )
+    value = value.replace(/([0-9]{2})$/g, ",$1")
+    if( value.length > 6 )
+        value = value.replace(/([0-9]{3}),([0-9]{2}$)/g, ".$1,$2");
+    value = "R$ - "  + value
+    return value
+}
 
-export { maskCpf }
+export { maskCpf, maskValor }

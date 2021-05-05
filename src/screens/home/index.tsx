@@ -14,6 +14,9 @@ export default function HomeFuncaoScreen(props: HomeProps) {
   function navToCadastro() {
     nav.navigate("cadastro");
   }
+  function navToCartao() {
+    nav.navigate("cartao");
+  }
   return (
     <ImageBackground
       source={require("../../../assets/img/Background.png")}
