@@ -31,10 +31,51 @@ import { CpfInput } from "./../../components/input";
 import { AlertCustom } from "./../../components/alert-custom";
 import { Dimensions } from "react-native";
 import { ExpandingDot } from "react-native-animated-pagination-dots";
+import firebase from "firebase";
+import { LogBox } from "react-native";
+console.disableYellowBox = true;
 
 export interface PrincipalProps {}
 
 export default function PrincipalScreen(props: PrincipalProps) {
+  const [saldo, setSaldo] = React.useState(0);
+  const [saques, setSaques] = React.useState(0);
+  const [fatura, setFatura] = React.useState(0);
+  const [limite, setLimite] = React.useState(0);
+  const [nome, setNome] = React.useState("");
+  const [conta, setConta] = React.useState(0);
+  const [info, setInfo] = React.useState(1);
+
+  React.useEffect(() => {
+    (async () => {
+      let db = firebase.firestore();
+      const user = firebase.auth().currentUser;
+      db.collection("Users")
+        .doc(user?.uid)
+        .get()
+        .then((resultado) => {
+          let dados = resultado.data();
+          setSaldo(dados.saldo);
+          setSaques(dados.saques);
+          setFatura(dados.fatura);
+          setLimite(dados.limite);
+          setNome(dados.nome);
+          setConta(dados.conta);
+        });
+
+      // const snapshot = await db
+      //   .collection("Users")
+      //   .doc(user.uid)
+      //   .get();
+      //   let data = snapshot.empty ? null : snapshot.docs[0].data();
+      //   console.log(data)
+      //   console.log("teste2")
+      //   console.log("teste2")
+      //   console.log("teste2")
+      //   console.log("teste2")
+    })();
+  }, []);
+
   const SLIDER_DATA = [
     {
       key: null,
@@ -42,7 +83,6 @@ export default function PrincipalScreen(props: PrincipalProps) {
     {
       key: null,
     },
-   
   ];
   const nav = useNavigation();
   const windowWidth = Dimensions.get("window").width;
@@ -50,18 +90,6 @@ export default function PrincipalScreen(props: PrincipalProps) {
   const [visibilidade, setVisibilidade] = React.useState(false);
   const scrollX = React.useRef(new Animated.Value(0)).current;
 
-  const cadastrar = async (dados: any) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (Platform.OS == "android") {
-      ToastAndroid.showWithGravity(
-        "Cadastrado com sucesso!",
-        2000,
-        ToastAndroid.CENTER
-      );
-    } else {
-      alert("Cadastrado com sucesso!");
-    }
-  };
   const [cpf, setCpf] = React.useState("");
 
   function handleCustom(value: string) {
@@ -86,18 +114,122 @@ export default function PrincipalScreen(props: PrincipalProps) {
       <StatusBar style="light" backgroundColor="#000" />
 
       <View style={[styles.container2, {}]}>
-        <Image
-          source={require("../../../assets/img/img_avatar.png")}
-          style={{ borderRadius: 100, width: 100, height: 100 }}
-        />
-        <Text style={styles.text3}>Olá, Nome!</Text>
-
+        {info == 0 && (
+          <View
+            style={[
+              styles.card,
+              {
+                width: "90%",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: 10,
+                marginTop: 5,
+                marginBottom: 5,
+                flexDirection: "row",
+              },
+            ]}
+          >
+            <Icon
+              style={{ marginLeft: 15 }}
+              size={20}
+              type="font-awesome"
+              name="gear"
+            />
+            <Text style={[styles.text3, { color: "#000", marginTop: 0 }]}>
+              Olá, {nome}!
+            </Text>
+            <Icon
+              style={{ marginLeft: 15 }}
+              size={20}
+              type="font-awesome"
+              name="chevron-down"
+              onPress={() => {
+                setInfo(1);
+              }}
+            />
+          </View>
+        )}
+        {info == 1 && (
+          <View
+            style={[
+              styles.card,
+              {
+                width: "90%",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 20,
+                marginTop: 5,
+                marginBottom: 5,
+              },
+            ]}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                justifyContent: "space-between",
+              }}
+            >
+              <Icon
+                style={{ marginLeft: 5 }}
+                size={20}
+                type="font-awesome"
+                name="gear"
+              />
+              <Text style={[styles.text3, { color: "#000", marginTop: 0 }]}>
+                Olá, {nome}!
+              </Text>
+              <Icon
+                style={{ marginRight: 5 }}
+                size={20}
+                type="font-awesome"
+                name="chevron-up"
+                onPress={() => {
+                  setInfo(0);
+                }}
+              />
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                width: "75%",
+              }}
+            >
+              <Text
+                style={[
+                  styles.text3,
+                  { color: "#000", fontSize: 18, marginTop: 0 },
+                ]}
+              >
+                Conta: {conta}
+              </Text>
+              <Text
+                style={[
+                  styles.text3,
+                  { color: "#000", fontSize: 18, marginTop: 0 },
+                ]}
+              >
+                Agência: 001
+              </Text>
+            </View>
+            <Text
+              style={[
+                styles.text3,
+                { color: "#000", fontSize: 18, marginTop: 0 },
+              ]}
+            >
+              Banco: BIT pagamentos S.A.
+            </Text>
+          </View>
+        )}
         <View
           style={{
             flex: 1,
             width: "100%",
             flexDirection: "column",
             alignItems: "center",
+            justifyContent: 'flex-end'
           }}
         >
           <View
@@ -106,6 +238,7 @@ export default function PrincipalScreen(props: PrincipalProps) {
               {
                 maxWidth: "90%",
                 flex: 1,
+
                 padding: 0,
                 alignItems: "center",
               },
@@ -114,13 +247,11 @@ export default function PrincipalScreen(props: PrincipalProps) {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-
-              onScroll={Animated.event( // Animated.event returns a function that takes an array where the first element...
+              onScroll={Animated.event(
+                // Animated.event returns a function that takes an array where the first element...
                 [{ nativeEvent: { contentOffset: { x: scrollX } } }] // ... is an object that maps any nativeEvent prop to a variable
               )} // in this case we are mapping the value of nativeEvent.contentOffset.x to this.scrollX
               scrollEventThrottle={16} // this will ensure that this ScrollView's onScroll prop is called no faster than 16ms between each function call
-              
-
               scrollEnabled
               pagingEnabled
               contentContainerStyle={{ flexGrow: 1 }}
@@ -155,7 +286,7 @@ export default function PrincipalScreen(props: PrincipalProps) {
                   <Text
                     style={{ color: "#000", fontSize: 45, fontWeight: "bold" }}
                   >
-                    R$ 300,00
+                    R$ {fatura},00
                   </Text>
                 </View>
                 <View
@@ -165,7 +296,9 @@ export default function PrincipalScreen(props: PrincipalProps) {
                     alignItems: "center",
                   }}
                 >
-                  <Text style={styles.text}>Limite disponível: R$300,00</Text>
+                  <Text style={styles.text}>
+                    Limite disponível: R${limite},00
+                  </Text>
                 </View>
               </TouchableOpacity>
 
@@ -191,7 +324,7 @@ export default function PrincipalScreen(props: PrincipalProps) {
                   <Text
                     style={{ color: "#000", fontSize: 45, fontWeight: "bold" }}
                   >
-                    R$ 0,00
+                    R$ {saldo},00
                   </Text>
                 </View>
                 <View
@@ -201,35 +334,34 @@ export default function PrincipalScreen(props: PrincipalProps) {
                     alignItems: "center",
                   }}
                 >
-                  <Text style={styles.text}>Saques gratuitos: 0</Text>
+                  <Text style={styles.text}>Saques gratuitos: {saques}</Text>
                 </View>
               </View>
-              
             </ScrollView>
             <ExpandingDot
-                data={SLIDER_DATA}
-                expandingDotWidth={30}
-                scrollX={scrollX}
-                inActiveDotOpacity={0.6}
-                dotStyle={{
-                  width: 10,
-                  height: 10,
-                  backgroundColor: "#18a383",
-                  borderRadius: 5,
-                  marginHorizontal: 5,
-                }}
-                containerStyle={{
-                  top: '95%',
-                }}
-              />
+              data={SLIDER_DATA}
+              expandingDotWidth={30}
+              scrollX={scrollX}
+              inActiveDotOpacity={0.6}
+              dotStyle={{
+                width: 10,
+                height: 10,
+                backgroundColor: "#18a383",
+                borderRadius: 5,
+                marginHorizontal: 5,
+              }}
+              containerStyle={{
+                top: "95%",
+              }}
+            />
           </View>
-          
         </View>
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => {
-            nav.goBack();
+          onPress={async () => {
+            await firebase.auth().signOut();
+            nav.navigate("login");
             if (Platform.OS == "android") {
               ToastAndroid.showWithGravity(
                 "Deslogado!",
@@ -325,10 +457,10 @@ export default function PrincipalScreen(props: PrincipalProps) {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-          onPress={() => {
-            nav.navigate("ajuste-limite");
-          }}
-        >
+            onPress={() => {
+              nav.navigate("ajuste-limite");
+            }}
+          >
             <View style={styles.card2}>
               <View style={{ flex: 9, alignItems: "center" }}>
                 <Icon
@@ -355,10 +487,10 @@ export default function PrincipalScreen(props: PrincipalProps) {
           </TouchableOpacity>
 
           <TouchableOpacity
-          onPress={() => {
-            nav.navigate("bloqueio");
-          }}
-        >
+            onPress={() => {
+              nav.navigate("bloqueio");
+            }}
+          >
             <View style={styles.card2}>
               <View style={{ flex: 9, alignItems: "center" }}>
                 <Icon
@@ -385,9 +517,9 @@ export default function PrincipalScreen(props: PrincipalProps) {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-          onPress={() => {
-            nav.navigate("cartao-virtual");
-          }}
+            onPress={() => {
+              nav.navigate("cartao-virtual");
+            }}
           >
             <View style={styles.card2}>
               <View style={{ flex: 9, alignItems: "center" }}>

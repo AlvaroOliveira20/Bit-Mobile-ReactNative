@@ -146,7 +146,8 @@ export default function BarcodeScreen(props: BarcodeProps) {
           <>
           
           <BarCodeScanner
-            barCodeTypes={[BarCodeScanner.Constants.BarCodeType.code128]}
+            barCodeTypes={[BarCodeScanner.Constants.BarCodeType.code128]
+            }
             onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
 
             style={{ width: "100%", height: "100%", flex: 9 }}

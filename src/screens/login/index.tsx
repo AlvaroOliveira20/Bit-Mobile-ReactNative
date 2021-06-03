@@ -21,34 +21,120 @@ import HideWithKeyboard from "react-native-hide-with-keyboard";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { CpfInput } from "./../../components/input";
+import firebase from "firebase";
+
+import "firebase/firestore";
 
 export interface HomeProps {}
+
+console.disableYellowBox = true;
 
 export default function LoginScreen(props: HomeProps) {
   const nav = useNavigation();
 
   const logar = async (dados: any) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (dados.cpf == "123.456.789-10" && dados.senha == "123456") {
-      nav.navigate("principal");
+    if (dados.cpf.length < 14) {
       if (Platform.OS == "android") {
         ToastAndroid.showWithGravity(
-          "Logado com sucesso!",
+          "CPF inválido!",
           2000,
           ToastAndroid.CENTER
         );
       } else {
-        alert("Logado com sucesso!");
+        alert("CPF inválido!");
       }
     } else {
-      if (Platform.OS == "android") {
-        ToastAndroid.showWithGravity(
-          "Cpf ou senha incorretos!",
-          2000,
-          ToastAndroid.CENTER
-        );
+      let db = firebase.firestore();
+      const snapshot = await db
+        .collection("Users")
+        .where("cpf", "==", dados.cpf)
+        .get();
+
+      let usuario = snapshot.empty ? null : snapshot.docs[0].data();
+      let usuarioLogado = null;
+      if (usuario != null) {
+        try {
+          usuarioLogado = await firebase
+            .auth()
+            .signInWithEmailAndPassword(usuario.email, dados.senha);
+        } catch (error) {
+          console.error(error);
+          if (
+            error.message ==
+            'signInWithEmailAndPassword failed: First argument "email" must be a valid string.'
+          ) {
+            error.message = "Erro, email não digitado!";
+          } else if (
+            error.message ==
+            'signInWithEmailAndPassword failed: Second argument "password" must be a valid string.'
+          ) {
+            error.message = "Erro, senha não digitada!";
+          } else if (
+            error.message ==
+            "There is no user record corresponding to this identifier. The user may have been deleted."
+          ) {
+            error.message = "Erro, cadastro não encontrado!";
+          } else if (error.message == "The email address is badly formatted.") {
+            error.message =
+              "Erro, email não foi digitado corretamente, verifique e tente novamente!";
+          } else if (
+            error.message ==
+            "The password is invalid or the user does not have a password."
+          ) {
+            error.message = "CPF ou senha incorretos!";
+          } else if (
+            error.message ==
+            "A network error (such as timeout, interrupted connection or unreachable host) has occurred."
+          ) {
+            error.message =
+              "Erro, não foi estabelecer uma conexão com a rede, verifique sua conexão e tente novamente!";
+          }
+          if (Platform.OS == "android") {
+            ToastAndroid.showWithGravity(
+              error.message,
+              2000,
+              ToastAndroid.CENTER
+            );
+          } else {
+            alert(error.message);
+          }
+        }
+        if (usuarioLogado) {
+          await db
+            .collection("Users")
+            .doc(usuarioLogado.user?.uid)
+            .get()
+            .then((resultado) => {
+              if (resultado.exists) {
+                let dados = resultado.data();
+                if (!dados.conta) {
+                  nav.navigate("cadastro-cont");
+                } else if (dados.conta) {
+                  nav.navigate("principal");
+                }
+              }
+            });
+
+          if (Platform.OS == "android") {
+            ToastAndroid.showWithGravity(
+              "Logado com sucesso!",
+              2000,
+              ToastAndroid.CENTER
+            );
+          } else {
+            alert("Logado com sucesso!");
+          }
+        }
       } else {
-        alert("Logado com sucesso!");
+        if (Platform.OS == "android") {
+          ToastAndroid.showWithGravity(
+            "CPF ou senha incorretos!",
+            2000,
+            ToastAndroid.CENTER
+          );
+        } else {
+          alert("CPF ou senha incorretos!");
+        }
       }
     }
   };
@@ -107,10 +193,12 @@ export default function LoginScreen(props: HomeProps) {
             handleBlur,
           }) => (
             <View style={styles.card}>
-              <Image
-                style={styles.logo}
-                source={require("../../../assets/img/BACKUP.png")}
-              />
+              <HideWithKeyboard>
+                <Image
+                  style={styles.logo}
+                  source={require("../../../assets/img/BACKUP.png")}
+                />
+              </HideWithKeyboard>
               <View style={{ flexDirection: "row", paddingLeft: 10 }}>
                 <Text style={styles.text}>CPF</Text>
                 <View style={{ flex: 1 }} />
@@ -292,10 +380,9 @@ const styles = StyleSheet.create({
   },
   card: {
     width: 350,
-    height: 500,
+
     backgroundColor: "rgba(255,255,255,0.8)",
-    borderTopLeftRadius: 60,
-    borderBottomRightRadius: 60,
+    borderRadius: 20,
     marginBottom: 50,
     alignItems: "center",
     justifyContent: "center",

@@ -13,6 +13,7 @@ import  TransferenciaScreen from './../screens/transferencia'
 import  AjusteScreen from './../screens/ajuste-limite'
 import  BloqueioScreen from './../screens/bloqueio'
 import  CartaoVirtualScreen from './../screens/cartao-virtual'
+import  CadastroContScreen from './../screens/fimCadastro'
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,7 @@ export const NavegacaoPrincipal = () => (
             <Stack.Screen name="ajuste-limite" component={AjusteScreen} />
             <Stack.Screen name="bloqueio" component={BloqueioScreen} />
             <Stack.Screen name="cartao-virtual" component={CartaoVirtualScreen} />
+            <Stack.Screen name="cadastro-cont" component={CadastroContScreen} />
         </Stack.Navigator>
     </NavigationContainer>
 )
