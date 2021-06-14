@@ -11,6 +11,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  ActivityIndicator,
   ToastAndroid,
   View,
 } from "react-native";
@@ -22,13 +23,33 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "react-native";
 import Slider from "@react-native-community/slider";
 export interface AjusteProps {}
+import "firebase/firestore";
+import firebase from "firebase";
 
 export default function AjusteScreen(props: AjusteProps) {
   const nav = useNavigation();
-  const [slide, setSlide] = React.useState(100) 
+  const [slide, setSlide] = React.useState(100);
+  const [send, setSend] = React.useState(0);
   const [valor, setValor] = React.useState("");
   function handleCustom(value: string) {
     setValor(value);
+  }
+  async function salvar() {
+    try {
+      setSend(1);
+      let db = firebase.firestore();
+      const user = await firebase.auth().currentUser;
+      //@ts-ignore
+      let uid = user.uid;
+      await db.collection("Users").doc(uid).update({
+        limite: slide,
+      });
+      nav.navigate('principal')
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSend(0);
+    }
   }
   const [cpf, setCpf] = React.useState("");
   function handleCustomCpf(value: string) {
@@ -84,40 +105,67 @@ export default function AjusteScreen(props: AjusteProps) {
         }}
       >
         <View style={{ width: "100%", alignItems: "center" }}>
-          <View style={{ width: "100%", justifyContent: "space-between",alignItems: 'center', flexDirection: 'row', paddingLeft: '10%', paddingRight: '10%' }}>
+          <View
+            style={{
+              width: "100%",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexDirection: "row",
+              paddingLeft: "10%",
+              paddingRight: "10%",
+            }}
+          >
             <Text style={{ fontSize: 20, color: "#000" }}>100</Text>
             <Text style={{ fontSize: 20, color: "#000" }}>600</Text>
           </View>
           <Slider
             style={{ width: "90%", height: 40 }}
-            onSlidingComplete={(slide)=>{setSlide(slide)}}
+            onSlidingComplete={(slide) => {
+              setSlide(slide);
+            }}
             minimumValue={100}
             maximumValue={600}
             step={100}
             minimumTrackTintColor="#0f0"
             maximumTrackTintColor="#000000"
           />
-          
         </View>
-        <Text style={{ fontSize: 20, color: "#000" }}>Limite selecionado: R$ - {slide},00</Text>
-        <TouchableOpacity
-        onPress={() => {
-            nav.navigate("principal");
-          }}
-        
-          style={{
-            backgroundColor: "#000",
-            width: "83%",
-            height: 40,
-            borderRadius: 5,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}>
-            Continuar
-          </Text>
-        </TouchableOpacity>
+        <Text style={{ fontSize: 20, color: "#000" }}>
+          Limite selecionado: R$ - {slide},00
+        </Text>
+        {send == 0 && (
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#000",
+              width: "83%",
+              height: 40,
+              borderRadius: 5,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onPress={() => {
+              salvar();
+            }}
+          >
+            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}>
+              Salvar
+            </Text>
+          </TouchableOpacity>
+        )}
+        {send == 1 && (
+          <View
+            style={{
+              backgroundColor: "#000",
+              width: "83%",
+              height: 40,
+              borderRadius: 5,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ActivityIndicator size={30} color="#fff" />
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );

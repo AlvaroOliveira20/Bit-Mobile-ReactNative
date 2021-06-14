@@ -54,7 +54,7 @@ export default function CartaoScreen(props: CartaoProps) {
     //@ts-ignore
     responseListener.current = Notifications.addNotificationResponseReceivedListener(
       (response) => {
-        console.log(response);
+        //console.log(response);
       }
     );
 
@@ -83,7 +83,7 @@ export default function CartaoScreen(props: CartaoProps) {
 
   async function schedulePushNotification() {
     let random = Math.floor(Math.random() * 3)
-    console.log(random)
+    //console.log(random)
     let loja = "0"
     let valor = "0";
     if (random == 0) {
@@ -134,8 +134,31 @@ export default function CartaoScreen(props: CartaoProps) {
 
     setExibir(true);
     setSec(5);
+
+    async function sendPushNotification(expoPushToken) {
+      const message = {
+        to: expoPushToken,
+        sound: 'default',
+        title: "BitBank",
+        body: "Compra de " + valor + " aprovada no seu BitCard em "+loja+".",
+        priority: AndroidNotificationPriority.MAX,
+        data: { someData: 'goes here' },
+      };
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Accept-encoding': 'gzip, deflate',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+      });
+    }
     await Notifications.scheduleNotificationAsync({
+      
       content: {
+        
         title: "BitBank",
         body: "Compra de " + valor + " aprovada no seu BitCard em "+loja+".",
         priority: AndroidNotificationPriority.MAX,
@@ -166,7 +189,7 @@ export default function CartaoScreen(props: CartaoProps) {
         return;
       }
       token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log(token);
+      //console.log(token);
     } else {
       alert("Must use physical device for Push Notifications");
     }
@@ -179,7 +202,6 @@ export default function CartaoScreen(props: CartaoProps) {
         lightColor: "#FF231F7C",
       });
     }
-
     return token;
   }
 

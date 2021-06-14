@@ -22,16 +22,41 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { CpfInput } from "./../../components/input";
 import firebase from "firebase";
+import * as LocalAuthentication from "expo-local-authentication";
+import { Switch } from "react-native";
 
 import "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface HomeProps {}
 
 console.disableYellowBox = true;
 
 export default function LoginScreen(props: HomeProps) {
-  const nav = useNavigation();
+  async function updateLembrar(){
+    //@ts-ignore
+    setLembrar(previousState => !previousState)
+    let datal = !lembrar
+    await AsyncStorage.setItem("lembrar", datal.toString())
+  }
+  React.useEffect(() => {
+    (async () => {
+      let lembrarCpf: any = await AsyncStorage.getItem("lembrar");
 
+      if(lembrarCpf=="true"){
+        setLembrar(true);
+      }else if(lembrarCpf=="false"){
+        setLembrar(false);
+      }
+      
+      if (lembrarCpf=="true") {
+        let cpfValue: any = await AsyncStorage.getItem("cpf");
+        setCpf(cpfValue);
+      }
+    })();
+  }, []);
+
+  const nav = useNavigation();
   const logar = async (dados: any) => {
     if (dados.cpf.length < 14) {
       if (Platform.OS == "android") {
@@ -57,7 +82,10 @@ export default function LoginScreen(props: HomeProps) {
           usuarioLogado = await firebase
             .auth()
             .signInWithEmailAndPassword(usuario.email, dados.senha);
-        } catch (error) {
+          await AsyncStorage.setItem("email", usuario.email);
+          await AsyncStorage.setItem("senha", dados.senha);
+          await AsyncStorage.setItem("cpf", dados.cpf);
+        } catch (error:any) {
           console.error(error);
           if (
             error.message ==
@@ -107,8 +135,10 @@ export default function LoginScreen(props: HomeProps) {
             .then((resultado) => {
               if (resultado.exists) {
                 let dados = resultado.data();
+                //@ts-ignore
                 if (!dados.conta) {
                   nav.navigate("cadastro-cont");
+                  //@ts-ignore
                 } else if (dados.conta) {
                   nav.navigate("principal");
                 }
@@ -139,6 +169,8 @@ export default function LoginScreen(props: HomeProps) {
     }
   };
   const [cpf, setCpf] = React.useState("");
+  const [lembrar, setLembrar]: any = React.useState(false);
+  
   function handleCustom(value: string) {
     setCpf(value);
   }
@@ -148,7 +180,7 @@ export default function LoginScreen(props: HomeProps) {
       style={styles.background}
     >
       <StatusBar style="light" backgroundColor="#000" />
-
+      
       <HideWithKeyboard style={{ flex: 1 }}>
         <View
           style={{
@@ -248,9 +280,15 @@ export default function LoginScreen(props: HomeProps) {
                 </Text>
               )}
               <View style={styles.checkboxContainer}>
-                <CheckBox style={styles.checkbox} />
+                <CheckBox
+                  onValueChange={updateLembrar}
+                  
+                  value={lembrar}
+                  style={styles.checkbox}
+                />
                 <Text style={styles.label}> Lembrar CPF</Text>
               </View>
+
               {isSubmitting && (
                 <View style={styles.button}>
                   <ImageBackground

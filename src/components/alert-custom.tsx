@@ -8,7 +8,7 @@ export interface AlertCustomProps {
   visivel: boolean;
   onBarcode(): void;
   onCancelar(): void;
-  children: any;
+  children?: any;
 }
 export function AlertCustom(props: AlertCustomProps) {
   return (
