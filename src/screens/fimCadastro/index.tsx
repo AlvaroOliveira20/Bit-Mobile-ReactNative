@@ -32,14 +32,14 @@ import Slider from "@react-native-community/slider";
 import { LogBox } from "react-native";
 import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
-
+import { Picker } from "react-native";
 
 export interface CadastroContProps {}
 
 export default function CadastroContScreen(props: CadastroContProps) {
   const nav = useNavigation();
   const [termos, setTermos] = React.useState(false);
-
+  const [selectedValue, setSelectedValue]: any = React.useState("10");
   const finalizar = async (dados: any) => {
     let token = "?";
     let permissao = await Permissions.askAsync(Permissions.NOTIFICATIONS);
@@ -91,10 +91,17 @@ export default function CadastroContScreen(props: CadastroContProps) {
         nacionalidade: dados.nacionalidade,
         saldo: 0,
         limite: slide,
+        limiteTotal: slide,
         conta: conta,
         saques: 1,
         fatura: 0,
         token: token,
+        bloqNacional: false,
+        bloqInternacional: false,
+        bloqFisico: false,
+        bloqOnline: false,
+        bloqTotal: false,
+        bloqProximidade: false,
       });
 
       nav.navigate("principal");
@@ -244,23 +251,36 @@ export default function CadastroContScreen(props: CadastroContProps) {
                       </Text>
                     </HideWithKeyboard>
 
-                    <View style={{ width: "100%" }}>
+                    <View style={{ width: "100%" , alignItems:"center"}}>
                       <View style={{ flexDirection: "row", paddingLeft: 10 }}>
                         <Text style={styles.text}>
                           Dia de vencimento da fatura:
                         </Text>
                         <View style={{ flex: 1 }} />
                       </View>
-
-                      <Input
-                        leftIcon={{ type: "font-awesome", name: "calendar" }}
-                        onBlur={handleBlur("vencimento")}
-                        onChangeText={handleChange("vencimento")}
-                        keyboardType="number-pad"
-                        maxLength={2}
-                        placeholder="00"
-                        style={styles.input}
-                      />
+                      <View style={{ width:"94%", borderRadius:5 ,borderWidth: 1, borderColor: "#000" }}>
+                        <Picker
+                          selectedValue={selectedValue}
+                          style={{ height: 30, width: '100%' }}
+                          onValueChange={(valor)=>{
+                            setFieldValue("vencimento", valor)
+                            setSelectedValue(valor)}
+                          }
+                        >                          
+                          <Picker.Item label="10" value="10" />
+                          <Picker.Item label="11" value="11" />
+                          <Picker.Item label="12" value="12" />
+                          <Picker.Item label="13" value="13" />
+                          <Picker.Item label="14" value="14" />
+                          <Picker.Item label="15" value="15" />
+                          <Picker.Item label="16" value="16" />
+                          <Picker.Item label="17" value="17" />
+                          <Picker.Item label="18" value="18" />
+                          <Picker.Item label="19" value="19" />
+                          <Picker.Item label="20" value="20" />
+                        </Picker>
+                      </View>
+                      
                       {touched.vencimento && errors.vencimento && (
                         <Text
                           style={{

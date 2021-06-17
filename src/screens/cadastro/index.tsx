@@ -56,6 +56,8 @@ export default function CadastroScreen(props: CadastroProps) {
             nome: dados.nome,
             uid: newUser.user?.uid,
           });
+        nav.navigate("login")
+        alert("Cadastrado com sucesso!")
       } catch (error) {
         console.error(error);
         if (error.message == 'createUserWithEmailAndPassword failed: First argument "email" must be a valid string.') {

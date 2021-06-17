@@ -42,7 +42,7 @@ export default function AjusteScreen(props: AjusteProps) {
       //@ts-ignore
       let uid = user.uid;
       await db.collection("Users").doc(uid).update({
-        limite: slide,
+        limiteTotal: slide,
       });
       nav.navigate('principal')
     } catch (e) {

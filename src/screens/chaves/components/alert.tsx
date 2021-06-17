@@ -6,6 +6,7 @@ import { Picker } from "react-native";
 import { Input } from "react-native-elements";
 import firebase from "firebase";
 import "firebase/firestore";
+import { Updates } from "expo";
 
 export interface AlertCustomProps {
   titulo?: string;
@@ -15,36 +16,41 @@ export interface AlertCustomProps {
   onCompleted(): void;
 }
 export function AlertCustom(props: AlertCustomProps) {
-  const [selectedValue, setSelectedValue] = React.useState("CPF");
-  const [chave, setChave] = React.useState();
+  const [selectedValue, setSelectedValue]: any = React.useState("Selecione");
+  const [chave, setChave]: any = React.useState();
   const [send, setSend] = React.useState(0);
 
-  const gravar = async ()=>{
-      setSend(1)
-      if(chave!=null){
-          try{
-            let db = firebase.firestore();
-            const user = await firebase.auth().currentUser;
-            //@ts-ignore
-            let uid = user.uid;
-      
-            await db.collection("Users").doc(uid).update({
-                chave: chave,
-                tipoChave: selectedValue
-                
-              });
-            props.onCompleted()
-          }catch(e){
+  const gravar = async () => {
+    setSend(1);
+    console.log(selectedValue)
+    if (selectedValue != "Selecione") {
+      if (chave != null) {
+        try {
+          let db = firebase.firestore();
+          const user = await firebase.auth().currentUser;
+          //@ts-ignore
+          let uid = user.uid;
 
-          }finally{
-            setSend(0)
-          }
-        
-      }else{
-          alert("a chave não pode ser nula")
-          setSend(0)
+          await db.collection("Users").doc(uid).update({
+            chave: chave,
+            tipoChave: selectedValue,
+          });
+          setChave(null);
+          props.onCompleted();
+        } catch (e) {
+        } finally {
+          setSend(0);
+        }
+      } else {
+        alert("a chave não pode ser nula");
+        setSend(0);
       }
-  }
+    } else {
+      alert("Selecione um tipo de chave");
+
+      setSend(0);
+    }
+  };
   return (
     <Modal visible={props.visivel} animationType="slide" transparent>
       <View style={styles.container}>
@@ -103,15 +109,39 @@ export function AlertCustom(props: AlertCustomProps) {
                 <Picker
                   selectedValue={selectedValue}
                   style={{ height: 30, width: 150 }}
-                  onValueChange={(itemValue, itemIndex) =>
-                    setSelectedValue(itemValue)
-                  }
+                  onValueChange={(itemValue, itemIndex) => {
+                    setSelectedValue(itemValue);
+                    if (itemValue == "CPF") {
+                      let db = firebase.firestore();
+                      const user = firebase.auth().currentUser;
+                      db.collection("Users")
+
+                        .doc(user?.uid)
+                        .get()
+                        .then((resultado) => {
+                          let dados = resultado.data();
+                          //@ts-ignore
+                          setChave(dados.cpf);
+                        });
+                    } else if (itemValue == "Chave Aleatória") {
+                      let rand: any = Math.floor(Math.random() * (5 - 0)) + 0;
+                      if (rand == 0) setChave("782c9979015c2782c2ba");
+                      if (rand == 1) setChave("2ba782c997e2782c9015");
+                      if (rand == 2) setChave("07195c2782c2fa782ce9");
+                      if (rand == 3) setChave("c1853b1cd351d2a74923");
+                      if (rand == 4) setChave("c2453dc10251d2a74654");
+                      if (rand == 5) setChave("1d865b1cd353e4f53458");
+                    } else {
+                      setChave(null);
+                    }
+                  }}
                 >
-                  <Picker.Item label="CPF" value="CPF" />
+                  <Picker.Item label="Selecione" value="Selecione" />
                   <Picker.Item
                     label="Chave Aleatória"
-                    value="Chave-aleatória"
+                    value="Chave Aleatória"
                   />
+                  <Picker.Item label="CPF" value="CPF" />
                 </Picker>
               </View>
             </View>
@@ -124,15 +154,7 @@ export function AlertCustom(props: AlertCustomProps) {
               }}
             >
               <Text style={{ fontSize: 20 }}>Chave PIX</Text>
-              <Input
-                value={chave}
-                onChangeText={(text: string) => {
-                  setChave(text);
-                }}
-                maxLength={50}
-                keyboardType="number-pad"
-                placeholder=""
-              />
+              <Text style={{ fontSize: 22 }}>{chave}</Text>
             </View>
             {send == 0 && (
               <TouchableOpacity

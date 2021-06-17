@@ -27,6 +27,8 @@ import AnimatedFlatlist from "react-native-animated-flatlist";
 import uuid from "react-native-uuid";
 import firebase from "firebase";
 import { AlertCustom } from "./components/alert";
+import { IconObject } from "react-native-elements/dist/icons/Icon";
+import "firebase/firestore";
 
 export interface ChavesProps {}
 
@@ -90,6 +92,7 @@ export default function ChavesScreen(props: ChavesProps) {
         }}
         onCompleted={() => {
           let db = firebase.firestore();
+          setVisibilidade(false);
           const user = firebase.auth().currentUser;
           db.collection("Users")
             .doc(user?.uid)
@@ -213,6 +216,22 @@ export default function ChavesScreen(props: ChavesProps) {
                     >
                       <Text>{data.item.tipo}</Text>
                       <Text>{data.item.chave}</Text>
+                      <Icon
+                        name="delete"
+                        onPress={() => {
+                          const FieldValue = firebase.firestore.FieldValue;
+                          let db = firebase.firestore();
+                          const user =  firebase.auth().currentUser;
+                          //@ts-ignore
+                          let uid = user.uid;
+
+                          db.collection("Users").doc(uid).update({
+                            chave: FieldValue.delete(),
+                            tipoChave: FieldValue.delete()
+                          })
+                          
+                        }}
+                      ></Icon>
                     </View>
                   </View>
                 )}

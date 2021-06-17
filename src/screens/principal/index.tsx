@@ -15,6 +15,9 @@ import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { Icon } from "react-native-elements";
 
 import { AlertCustom } from "./../../components/alert-custom";
+import { AlertConvite} from "./components/convite";
+import { AlertAjuda} from "./components/ajuda";
+import { AlertCobrar} from "./components/deposito";
 import { Dimensions } from "react-native";
 import { ExpandingDot } from "react-native-animated-pagination-dots";
 import firebase from "firebase";
@@ -76,6 +79,19 @@ export default function PrincipalScreen(props: PrincipalProps) {
         }
         //@ts-ignore
         setLimite(limite);
+
+        //@ts-ignore
+        let limiteTotal = dados.limiteTotal.toString().split(".");
+        if (limiteTotal.length > 1) {
+          if (limiteTotal[1].length == 1) {
+            limiteTotal[1] = limiteTotal[1] + "0";
+          }
+          limiteTotal = limiteTotal[0] + "," + limiteTotal[1];
+        } else {
+          limiteTotal = limiteTotal + ",00";
+        }
+        //@ts-ignore
+        setLimiteTotal(limiteTotal);
         //@ts-ignore
         setNome(dados.nome);
         //@ts-ignore
@@ -86,6 +102,7 @@ export default function PrincipalScreen(props: PrincipalProps) {
   const [saques, setSaques] = React.useState(0);
   const [fatura, setFatura] = React.useState(0);
   const [limite, setLimite] = React.useState(0);
+  const [limiteTotal, setLimiteTotal] = React.useState(0);
   const [nome, setNome] = React.useState("");
   const [conta, setConta] = React.useState(0);
   const [info, setInfo] = React.useState(1);
@@ -100,6 +117,10 @@ export default function PrincipalScreen(props: PrincipalProps) {
         .then((resultado) => {
           let dados = resultado.data();
           //@ts-ignore
+          if (dados.limite > dados.limiteTotal) {
+            dados.limite = dados.limiteTotal - dados.fatura;
+            if (dados.limite < 0) dados.limite = 0;
+          }
 
           let saldo = dados.saldo.toString().split(".");
           if (saldo.length > 1) {
@@ -141,6 +162,19 @@ export default function PrincipalScreen(props: PrincipalProps) {
           }
           //@ts-ignore
           setLimite(limite);
+
+          //@ts-ignore
+          let limiteTotal = dados.limiteTotal.toString().split(".");
+          if (limiteTotal.length > 1) {
+            if (limiteTotal[1].length == 1) {
+              limiteTotal[1] = limiteTotal[1] + "0";
+            }
+            limiteTotal = limiteTotal[0] + "," + limiteTotal[1];
+          } else {
+            limiteTotal = limiteTotal + ",00";
+          }
+          //@ts-ignore
+          setLimiteTotal(limiteTotal);
           //@ts-ignore
           setNome(dados.nome);
           //@ts-ignore
@@ -161,6 +195,9 @@ export default function PrincipalScreen(props: PrincipalProps) {
   const windowWidth = Dimensions.get("window").width;
   const width90 = windowWidth * 0.9;
   const [visibilidade, setVisibilidade] = React.useState(false);
+  const [visibilidade2, setVisibilidade2] = React.useState(false);
+  const [visibilidade3, setVisibilidade3] = React.useState(false);
+  const [visibilidade4, setVisibilidade4] = React.useState(false);
   const scrollX = React.useRef(new Animated.Value(0)).current;
 
   const [cpf, setCpf] = React.useState("");
@@ -183,6 +220,36 @@ export default function PrincipalScreen(props: PrincipalProps) {
           onBarcode={() => {
             nav.navigate("barcode");
             setVisibilidade(false);
+          }}
+        />
+        <AlertConvite
+          titulo="Teste"
+          visivel={visibilidade2}
+          onCancelar={() => {
+            setVisibilidade2(false);
+          }}
+          onCompleted={() => {
+            setVisibilidade2(false);
+          }}
+        />
+        <AlertAjuda
+          titulo="Teste"
+          visivel={visibilidade3}
+          onCancelar={() => {
+            setVisibilidade3(false);
+          }}
+          onCompleted={() => {
+            setVisibilidade3(false);
+          }}
+        />
+        <AlertCobrar
+          titulo="Teste"
+          visivel={visibilidade4}
+          onCancelar={() => {
+            setVisibilidade4(false);
+          }}
+          onCompleted={() => {
+            setVisibilidade4(false);
           }}
         />
         <StatusBar style="light" backgroundColor="#000" />
@@ -378,6 +445,11 @@ export default function PrincipalScreen(props: PrincipalProps) {
                   >
                     <Text style={styles.text}>
                       Limite disponível: R${limite}
+                    </Text>
+                    <Text
+                      style={[styles.text, { fontSize: 18, color: "#888" }]}
+                    >
+                      Limite Total: R${limiteTotal}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -634,7 +706,10 @@ export default function PrincipalScreen(props: PrincipalProps) {
                 </View>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity
+            onPress={() => {
+              setVisibilidade2(true);
+            }}>
               <View style={styles.card2}>
                 <View style={{ flex: 9, alignItems: "center" }}>
                   <Icon
@@ -660,7 +735,10 @@ export default function PrincipalScreen(props: PrincipalProps) {
                 </View>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity
+            onPress={() => {
+              setVisibilidade3(true);
+            }}>
               <View style={styles.card2}>
                 <View style={{ flex: 9, alignItems: "center" }}>
                   <Icon
@@ -687,7 +765,10 @@ export default function PrincipalScreen(props: PrincipalProps) {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity>
+            <TouchableOpacity
+            onPress={() => {
+              setVisibilidade4(true);
+            }}>
               <View style={{ marginRight: 15 }}>
                 <View style={styles.card2}>
                   <View style={{ flex: 9, alignItems: "center" }}>

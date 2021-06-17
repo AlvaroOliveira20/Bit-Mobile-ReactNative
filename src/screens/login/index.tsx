@@ -193,7 +193,7 @@ export default function LoginScreen(props: HomeProps) {
             alignItems: "center",
           }}
         >
-          <TouchableOpacity onPress={() => nav.goBack()}>
+          <TouchableOpacity onPress={() => nav.navigate('home')}>
             <Icon
               color={"#fff"}
               style={{ marginLeft: 15, marginRight: 15, marginTop: 25 }}

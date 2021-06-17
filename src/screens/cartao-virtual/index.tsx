@@ -32,10 +32,26 @@ import { CpfInput } from "./../../components/input";
 import { AlertCustom } from "./../../components/alert-custom";
 import { Dimensions } from "react-native";
 import { ExpandingDot } from "react-native-animated-pagination-dots";
+import firebase from "firebase";
+import "firebase/firestore";
 
 export interface CartaoVirtualProps {}
 
 export default function CartaoVirtualScreen(props: CartaoVirtualProps) {
+  const [nome, setNome] = React.useState("")
+  React.useEffect(() => {
+    let db = firebase.firestore();
+    const user = firebase.auth().currentUser;
+    db.collection("Users")
+
+      .doc(user?.uid)
+      .get()
+      .then((resultado) => {
+        let dados = resultado.data();
+        //@ts-ignore
+        setNome(dados.nome);
+      });
+  });
   const SLIDER_DATA = [
     {
       key: null,
@@ -99,7 +115,7 @@ export default function CartaoVirtualScreen(props: CartaoVirtualProps) {
         />
         <View style={{ width: "100%", padding: "10%" }}>
           <Text style={{ fontSize: 15, color: "#777" }}>Nome do titular:</Text>
-          <Text style={{ fontSize: 25 }}>Fulano da Silva</Text>
+          <Text style={{ fontSize: 25 }}>{nome}</Text>
         </View>
         <View style={{ width: "100%", flexDirection: 'row', padding: "10%", alignItems: 'center', justifyContent: 'space-between'}}>
           <View style={{  }}>
@@ -129,21 +145,7 @@ export default function CartaoVirtualScreen(props: CartaoVirtualProps) {
             Apagar cartão
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#000",
-            marginTop:25,
-            width: 200,
-            height: 40,
-            borderRadius: 5,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}>
-            Bloquear cartão
-          </Text>
-        </TouchableOpacity>
+      
       </View>
     </SafeAreaView>
   );
